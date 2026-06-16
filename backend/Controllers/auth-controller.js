@@ -1,22 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const User = require("../Models/User.js");
 const Conversation = require("../Models/Conversation.js");
-const { JWT_SECRET, EMAIL, PASSWORD } = require("../secrets.js");
+const { JWT_SECRET, EMAIL, RESEND_API_KEY } = require("../secrets.js");
 
-let mailTransporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: EMAIL,
-    pass: PASSWORD,
-  },
-  connectionTimeout: 120000,
-  greetingTimeout: 120000,
-  socketTimeout: 120000
-});
+const resend = new Resend(RESEND_API_KEY);
 
 
 const register = async (req, res) => {
@@ -291,9 +280,20 @@ const sendotp = async (req, res) => {
   </html>`,
     };
 
-    // Use promise-based approach
+    // Use resend to send the email
     try {
-      await mailTransporter.sendMail(mailDetails);
+      const { data, error } = await resend.emails.send({
+        from: `Epistle <${EMAIL || "onboarding@resend.dev"}>`,
+        to: email,
+        subject: "Your Epistle Login OTP - " + otp,
+        html: mailDetails.html,
+      });
+
+      if (error) {
+        console.error("Resend error:", error);
+        return res.status(500).json({ message: "Failed to send OTP" });
+      }
+
       return res.status(200).json({ message: "OTP sent" });
     } catch (err) {
       console.error("Mail error:", err);
@@ -388,7 +388,18 @@ const sendVerificationOtp = async (req, res) => {
     };
 
     try {
-      await mailTransporter.sendMail(mailDetails);
+      const { data, error } = await resend.emails.send({
+        from: `Epistle <${EMAIL || "onboarding@resend.dev"}>`,
+        to: user.email,
+        subject: `Verify your Epistle email – OTP: ${otp}`,
+        html: mailDetails.html,
+      });
+
+      if (error) {
+        console.error("Resend error:", error);
+        return res.status(500).json({ message: "Failed to send OTP" });
+      }
+
       return res.status(200).json({ message: "Verification OTP sent" });
     } catch (err) {
       console.error("Mail error:", err);
