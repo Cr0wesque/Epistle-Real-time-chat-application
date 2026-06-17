@@ -29,7 +29,7 @@ A full-stack, real-time chat application built with the MERN stack and Socket.IO
 | **Authentication** | JWT, bcryptjs |
 | **AI** | Google Gemini (`@google/genai`) |
 | **File Storage** | AWS S3 (pre-signed POST uploads) |
-| **Email** | Nodemailer (Gmail SMTP) |
+| **Email** | Resend  |
 
 ---
 
