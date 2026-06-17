@@ -1,5 +1,10 @@
+const path = require("path");
 const dotenv = require("dotenv");
-dotenv.config({ path: ".env" });
+
+// Try to load .env from the current directory (backend/)
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+// Also try the parent directory just in case it's in the project root
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 const MONGO_URI = process.env.MONGO_URI;

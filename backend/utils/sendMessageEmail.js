@@ -13,7 +13,12 @@
 const { Resend } = require("resend");
 const { RESEND_API_KEY, EMAIL, FRONTEND_URL } = require("../secrets.js");
 
-const resend = new Resend(RESEND_API_KEY);
+let resend;
+if (RESEND_API_KEY) {
+    resend = new Resend(RESEND_API_KEY);
+} else {
+    console.warn("[sendMessageEmail] WARNING: RESEND_API_KEY is missing. Email notifications will be disabled.");
+}
 
 /**
  * @param {{ name: string, email: string }} receiver
@@ -22,6 +27,10 @@ const resend = new Resend(RESEND_API_KEY);
  * @param {string} conversationId     - used to deep-link back to the conversation
  */
 const sendMessageEmail = (receiver, sender, messageText, conversationId) => {
+    if (!resend) {
+        console.error("[sendMessageEmail] Cannot send email: Resend is not initialized (missing API key).");
+        return;
+    }
     const preview =
         messageText && messageText.trim()
             ? messageText.length > 120

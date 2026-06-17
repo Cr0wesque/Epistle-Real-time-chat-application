@@ -5,7 +5,12 @@ const User = require("../Models/User.js");
 const Conversation = require("../Models/Conversation.js");
 const { JWT_SECRET, EMAIL, RESEND_API_KEY } = require("../secrets.js");
 
-const resend = new Resend(RESEND_API_KEY);
+let resend;
+if (RESEND_API_KEY) {
+  resend = new Resend(RESEND_API_KEY);
+} else {
+  console.warn("[AuthController] WARNING: RESEND_API_KEY is missing. OTP emails will be disabled.");
+}
 
 
 const register = async (req, res) => {
