@@ -55,6 +55,7 @@ const register = async (req, res) => {
       password: secPass,
       profilePic: imageUrl,
       about: "Hello World!!",
+      isEmailVerified: true,
     });
 
     // Write 2: create the dedicated bot user for this account.
@@ -287,6 +288,10 @@ const sendotp = async (req, res) => {
 
     // Use resend to send the email
     try {
+      if (!resend) {
+        console.error("[sendotp] Resend is not initialized. Check RESEND_API_KEY in .env");
+        return res.status(500).json({ message: "Email service unavailable" });
+      }
       const { data, error } = await resend.emails.send({
         from: `Epistle <${EMAIL || "onboarding@resend.dev"}>`,
         to: email,
@@ -393,6 +398,10 @@ const sendVerificationOtp = async (req, res) => {
     };
 
     try {
+      if (!resend) {
+        console.error("[sendVerificationOtp] Resend is not initialized. Check RESEND_API_KEY in .env");
+        return res.status(500).json({ message: "Email service unavailable" });
+      }
       const { data, error } = await resend.emails.send({
         from: `Epistle <${EMAIL || "onboarding@resend.dev"}>`,
         to: user.email,
